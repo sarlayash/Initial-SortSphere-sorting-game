@@ -53,7 +53,7 @@ public class SortSphereGame extends JFrame {
     }
 
     private int[] parseNumbers() {
-        String[] tokens = numbers.getText().trim().split("[\\s,]+ ".trim());
+        String[] tokens = numbers.getText().trim().split("[\\s,]+");
         if (tokens.length < 2 || tokens.length > 12) throw new IllegalArgumentException("Please enter between 2 and 12 whole numbers.");
         int[] a = new int[tokens.length];
         for (int i=0;i<a.length;i++) { a[i] = Integer.parseInt(tokens[i]); if (a[i] < -99 || a[i] > 999) throw new IllegalArgumentException("Use values from -99 to 999."); }
@@ -111,8 +111,41 @@ public class SortSphereGame extends JFrame {
         String learner=JOptionPane.showInputDialog(this,"Learner name:","Certificate",JOptionPane.QUESTION_MESSAGE); if(learner==null||learner.trim().isEmpty())return;
         JFileChooser chooser=new JFileChooser(); chooser.setSelectedFile(new File("SortSphere-Certificate.png"));
         if(chooser.showSaveDialog(this)!=JFileChooser.APPROVE_OPTION)return;
-        try { BufferedImage image=new BufferedImage(1200,800,BufferedImage.TYPE_INT_RGB);Graphics2D g=image.createGraphics();g.setColor(new Color(247,250,255));g.fillRect(0,0,1200,800);g.setColor(new Color(44,68,155));g.setStroke(new BasicStroke(14));g.drawRect(28,28,1144,744);g.setFont(new Font("Serif",Font.BOLD,64));g.drawString("CERTIFICATE OF ACHIEVEMENT",165,170);g.setFont(new Font("SansSerif",Font.PLAIN,30));g.setColor(Color.DARK_GRAY);g.drawString("This celebrates",505,270);g.setFont(new Font("Serif",Font.BOLD,60));g.setColor(new Color(99,71,166));g.drawString(learner.trim(),Math.max(100,600-g.getFontMetrics().stringWidth(learner.trim())/2),365);g.setFont(new Font("SansSerif",Font.PLAIN,28));g.setColor(Color.DARK_GRAY);g.drawString("for becoming a SortSphere Sorting Champion",260,455);g.drawString("Algorithms mastered: " + Math.max(1,mastered.size()) + " / 4",420,520);g.setFont(new Font("SansSerif",Font.BOLD,22));g.setColor(new Color(44,68,155));g.drawString("Keep comparing. Keep learning.",440,650);g.dispose();ImageIO.write(image,"png",chooser.getSelectedFile());JOptionPane.showMessageDialog(this,"Certificate saved!"); }catch(Exception ex){JOptionPane.showMessageDialog(this,"Could not save: "+ex.getMessage());}
+        try {
+            BufferedImage image=new BufferedImage(1200,800,BufferedImage.TYPE_INT_RGB); Graphics2D g=image.createGraphics();
+            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g.setColor(new Color(247,250,255)); g.fillRect(0,0,1200,800);
+            g.setColor(new Color(44,68,155)); g.setStroke(new BasicStroke(14)); g.drawRect(28,28,1144,744);
+            g.setFont(new Font("Serif", Font.BOLD, 48)); centerText(g,"CERTIFICATE OF ACHIEVEMENT",600,170);
+            g.setFont(new Font("SansSerif",Font.PLAIN,30)); g.setColor(Color.DARK_GRAY); centerText(g,"This celebrates",600,270);
+            g.setFont(new Font("Serif",Font.BOLD,60)); g.setColor(new Color(99,71,166)); centerText(g,learner.trim(),600,365);
+            g.setFont(new Font("SansSerif",Font.PLAIN,28)); g.setColor(Color.DARK_GRAY); centerText(g,"for becoming a SortSphere Sorting Champion",600,455);
+            centerText(g,"Algorithms mastered: " + Math.max(1,mastered.size()) + " / 4",600,520);
+            g.setFont(new Font("SansSerif",Font.BOLD,22)); g.setColor(new Color(44,68,155)); centerText(g,"Keep comparing. Keep learning.",600,650);
+            g.dispose(); ImageIO.write(image,"png",chooser.getSelectedFile()); JOptionPane.showMessageDialog(this,"Certificate saved!");
+        } catch(Exception ex){ JOptionPane.showMessageDialog(this,"Could not save: "+ex.getMessage()); }
     }
+    private static void centerText(Graphics2D g, String text, int centerX, int baselineY) {
+
+    Font original = g.getFont();
+    Font font = original;
+
+    FontMetrics fm = g.getFontMetrics(font);
+
+    final int MAX_WIDTH = 1040;   // safe width inside border
+    final int MIN_SIZE = 28;
+
+    while (fm.stringWidth(text) > MAX_WIDTH && font.getSize() > MIN_SIZE) {
+        font = font.deriveFont((float)(font.getSize() - 1));
+        g.setFont(font);
+        fm = g.getFontMetrics();
+    }
+
+    int x = centerX - fm.stringWidth(text) / 2;
+    g.drawString(text, x, baselineY);
+
+    g.setFont(original);
+}
 
     static class Move { int i,j,value; boolean compare,swap,place; String text; static Move compare(int i,int j,String t){Move m=new Move();m.i=i;m.j=j;m.compare=true;m.text=t;return m;}static Move swap(int i,int j,String t){Move m=compare(i,j,t);m.swap=true;return m;}static Move place(int i,int v,String t){Move m=new Move();m.i=i;m.value=v;m.place=true;m.text=t;return m;} }
     static class BallBoard extends JPanel { int[] values={}; int activeA=-1,activeB=-1; boolean swapping;
